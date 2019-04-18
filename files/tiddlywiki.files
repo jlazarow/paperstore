@@ -1,0 +1,40 @@
+{
+	"tiddlers": [
+		{
+			"file": "paperstore.js",
+			"fields": {
+				  "type": "application/javascript",
+				  "title": "$:/plugins/jlazarow/paperstore/paperstore.js",
+				  "module-type": "library"
+			}
+		},{
+			"file": "syncer.js",
+			"fields": {
+				  "type": "application/javascript",
+				  "title": "$:/plugins/jlazarow/paperstore/syncer.js",
+				  "module-type": "library"
+			}
+		},{
+			"file": "publication.js",
+			"fields": {
+				  "type": "application/javascript",
+				  "title": "$:/plugins/jlazarow/paperstore/publication.js",
+				  "module-type": "library"
+			}
+		},{
+			"file": "academic-api.js",
+			"fields": {
+				  "type": "application/javascript",
+				  "title": "$:/plugins/jlazarow/paperstore/academic-api.js",
+				  "module-type": "library"
+			}
+		},{
+			"file": "semantic-scholar-api.js",
+			"fields": {
+				  "type": "application/javascript",
+				  "title": "$:/plugins/jlazarow/paperstore/semantic-scholar-api.js",
+				  "module-type": "library"
+			}
+		}
+	        ]
+}

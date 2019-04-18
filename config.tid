@@ -1,0 +1,8 @@
+type: application/json
+title: $:/plugins/jlazarow/paperstore/config 
+
+{
+  "configuration": {
+    "academicAPIKey": ""
+  }
+}
