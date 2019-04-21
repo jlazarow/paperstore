@@ -20,36 +20,67 @@ if ($tw.node) {
     
 var S2_HOSTNAME = "api.semanticscholar.org";
 var S2_PATH = "/v1/paper";
-    
-function S2PaperReference(id, isInfluential) {
-    Publication.PaperReference.call(this, id, isInfluential);
-}
 
-S2PaperReference.prototype = Object.create(Publication.PaperReference.prototype);
-S2PaperReference.prototype.constructor = Publication.PaperReference;
-
-S2PaperReference.parse = function(data) {
+Publication.Paper.parseS2 = function(data) {
     var arxivID = data["arxivId"];
     var doi = data["doi"];
     var s2ID = data["paperId"];
 
     var referenceID = null;
     if (arxivID != null) {
-        referenceID = Publication.Paper.arXiv + ":" + arxivID;
-    } else if (doi != null) {
-        referenceID = Publication.Paper.DOI + ":" + doi;                    
-    } else if (s2ID != null) {
-        referenceID = Publication.Paper.S2 + ":" + s2ID;                    
-    } else {
-        console.log("WARN: no ID for reference found");
-        console.log(data);
+        arxivID = Publication.Paper.arXiv + ":" + arxivID;
+        referenceID = arxivID
+    }
 
+    if (doi != null) {
+        doi = Publication.Paper.DOI + ":" + doi;
+        if (referenceID == null) {
+            referenceID = doi;
+        }
+    }
+
+    if (s2ID != null) {
+        s2ID = Publication.Paper.S2 + ":" + s2ID;
+        if (referenceID == null) {
+            referenceID = s2ID;
+        }
+    }
+
+    if (referenceID == null) {
+        console.log("no reference ID found");
         return null;
     }
 
+    var title = data["title"];
+    var year = data["year"];
+
+    // read the authors.
+    var authors = [];
+    var authorsData = data["authors"];
+    for (var authorIndex = 0; authorIndex < authorsData.length; authorIndex++) {
+        var authorData = authorsData[authorIndex];
+        var authorID = Publication.Paper.S2 + ":" + authorData["authorId"];
+        var authorName = authorData["name"];
+
+        authors.push(new Publication.Author(authorID, authorName, null));
+    }
+
+    return new Publication.Paper(
+        referenceID, title, null, year, [], [], authors, null, doi, arxivID, s2ID, null, []);
+}
+    
+function S2PaperReference(paper, isInfluential) {
+    Publication.PaperReference.call(this, paper, isInfluential);
+}
+
+S2PaperReference.prototype = Object.create(Publication.PaperReference.prototype);
+S2PaperReference.prototype.constructor = Publication.PaperReference;
+
+S2PaperReference.parse = function(data) {
+    var paper = Publication.Paper.parseS2(data);
     var isInfluential = data["isInfluential"];
 
-    return new S2PaperReference(referenceID, isInfluential);
+    return new S2PaperReference(paper, isInfluential);
 }
     
 function SemanticScholarAPI() {
@@ -117,10 +148,23 @@ SemanticScholarAPI.resolve = function(paper) {
     }
 
     return requestPromise.then(function(data) {
+        let authorsData = data["authors"];
+        if (authorsData.length >= paper.authors.length) {
+            let authors = [];
+
+            for (let authorIndex = 0; authorIndex < authorsData.length; authorIndex++) {
+                let authorData = authorsData[authorIndex];
+                let authorID = Publication.Paper.S2 + ":" + authorData["authorId"];
+                let authorName = authorData["name"];
+
+                authors.push(new Publication.Author(authorID, authorName, null));
+            }
+
+            paper.authors = authors;
+        }
+        
         // If we found good references, replace them.
         let referencesData = data["references"];
-
-        // not good to lose references.
         if (referencesData.length >= paper.references.length) {
             let references = [];
             

@@ -36,6 +36,7 @@ var FIELD_AUTHOR_ID = "author-id";
 var FIELD_AUTHOR_NAME = "author-name";
 
 var CONFIGURATION_TIDDLER = "$:/plugins/jlazarow/paperstore/config";
+var DATABASE_TIDDLER = "$:/papers";
     
 function PaperSyncer(wiki) {
     this.wiki = wiki;
@@ -80,10 +81,15 @@ PaperSyncer.prototype.associate = function(paper, tiddler) {
     var influentialReferenceIDs = [];
     for (var referenceIndex = 0; referenceIndex < paper.references.length; referenceIndex++) {
         var reference = paper.references[referenceIndex];
-        referenceIDs.push(reference.id);
+        if (reference.paper == null) {
+            console.log("something up");
+            continue;
+        }
+        
+        referenceIDs.push(reference.paper.id);
 
         if (!!reference.isInfluential) {
-            influentialReferenceIDs.push(reference.id);
+            influentialReferenceIDs.push(reference.paper.id);
         }
     }
 
@@ -94,10 +100,15 @@ PaperSyncer.prototype.associate = function(paper, tiddler) {
     var influentialCitationIDs = [];
     for (var citationIndex = 0; citationIndex < paper.citations.length; citationIndex++) {
         var citation = paper.citations[citationIndex];
-        citationIDs.push(citation.id);
+        if (citation.paper == null) {
+            console.log("something up");
+            continue;
+        }
+        
+        citationIDs.push(citation.paper.id);
 
         if (!!citation.isInfluential) {
-            influentialCitationIDs.push(citation.id);
+            influentialCitationIDs.push(citation.paper.id);
         }
     }
 

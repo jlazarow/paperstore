@@ -25,13 +25,14 @@ function PaperSource(type, url) {
      this.url = url;
 }
 
-function Author(id, name) {
+function Author(id, name, institution) {
     this.id = id;
     this.name = name;
+    this.institution = institution || null;
 }
 
-function PaperReference(id, isInfluential) {
-    this.id = id;
+function PaperReference(paper, isInfluential) {
+    this.paper = paper;
     this.isInfluential = isInfluential; // null indicate unknown.
 }
 

@@ -30,6 +30,7 @@ var ATTRIBUTE_REFERENCE_IDS = "RId";
 var ATTRIBUTE_AUTHORS = "AA";    
 var ATTRIBUTE_AUTHOR_NAMES = "AA.DAuN";
 var ATTRIBUTE_AUTHOR_IDS = "AA.AuId";
+var ATTRIBUTE_AUTHOR_INSTITUTIONS = "AA.DAfN";
 var ATTRIBUTE_CONFERENCE = "C";    
 var ATTRIBUTE_CONFERENCE_NAME = "C.CN";
 var ATTRIBUTE_CONFERENCE_ID = "C.CId";
@@ -50,6 +51,7 @@ var DEFAULT_ATTRIBUTES = [
     ATTRIBUTE_REFERENCE_IDS,
     ATTRIBUTE_AUTHOR_NAMES,
     ATTRIBUTE_AUTHOR_IDS,
+    ATTRIBUTE_AUTHOR_INSTITUTIONS,
     ATTRIBUTE_CONFERENCE_NAME,
     ATTRIBUTE_CONFERENCE_ID,
     ATTRIBUTE_CONFERENCE_INSTANCE_NAME,    
@@ -118,28 +120,30 @@ MAPaperSource.parse = function(data) {
     
 var AUTHOR_NAME = "DAuN";
 var AUTHOR_ID = "AuId";
-  
-function MAAuthor(id, name) {
-    Publication.Author.call(this, id, name);
+var AUTHOR_INSTITUTION = "DAfN";
+    
+function MAAuthor(id, name, institution) {
+    Publication.Author.call(this, id, name, institution);
 }
 
 MAAuthor.prototype = Object.create(Publication.Author.prototype);
 MAAuthor.prototype.constructor = Publication.Author;
     
-MAAuthor.parse = function (data) {
+MAAuthor.parse = function(data) {
     var id = Publication.Paper.MA + ":" + data[AUTHOR_ID];        
     var name = data[AUTHOR_NAME];
+    var institution = data[AUTHOR_INSTITUTION];
 
-    return new MAAuthor(id, name);
+    return new MAAuthor(id, name, institution);
 }
 
-function MAPaperReference(id, isInfluential) {
-    Publication.PaperReference.call(this, id, isInfluential);
+function MAPaperReference(paper, isInfluential) {
+    Publication.PaperReference.call(this, paper, isInfluential);
 }
 
 MAPaperReference.prototype = Object.create(Publication.PaperReference.prototype);
 MAPaperReference.prototype.constructor = Publication.PaperReference;
-    
+
 Publication.Paper.parseMA = function(data) {
     var id = Publication.Paper.MA + ":" + data[ATTRIBUTE_ID];
     var title = data[ATTRIBUTE_TITLE];
@@ -151,7 +155,9 @@ Publication.Paper.parseMA = function(data) {
     var references = [];
     for (var referenceIndex = 0; referenceIndex < referenceIDs.length; referenceIndex++) {
         var referenceID = Publication.Paper.MA + ":" + referenceIDs[referenceIndex];
-        references.push(new MAPaperReference(referenceID, null));
+
+        // create a partial Paper to wrap this reference.
+        references.push(new MAPaperReference(new Publication.Paper(referenceID), null));
     }
 
     // MA doesn't provide citations.
